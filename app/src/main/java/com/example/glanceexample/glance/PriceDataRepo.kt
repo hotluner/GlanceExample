@@ -11,9 +11,14 @@ object PriceDataRepo {
     private var _currentPrice = MutableStateFlow(0f)
     val currentPrice: StateFlow<Float> get() = _currentPrice
     fun update() {
-        previousPrice = currentPrice.value
-        _currentPrice.value = Random.nextInt(20, 35) + Random.nextFloat()
-        change = ((_currentPrice.value - previousPrice)
-                / previousPrice * 100).toInt()
+        val newPrice = Random.nextInt(20, 35) + Random.nextFloat()
+        // Avoid division by zero on the first update.
+        change = if (previousPrice > 0f) {
+            ((newPrice - previousPrice) / previousPrice * 100).toInt()
+        } else {
+            0
+        }
+        previousPrice = newPrice
+        _currentPrice.value = newPrice
     }
 }
